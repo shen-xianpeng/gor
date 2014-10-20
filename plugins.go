@@ -32,6 +32,10 @@ func InitPlugins() {
 		Plugins.Outputs = append(Plugins.Outputs, NewTCPOutput(options))
 	}
 
+	for _, options := range Settings.inputData {
+		Plugins.Inputs = append(Plugins.Inputs, NewDataInput(options))
+	}
+
 	for _, options := range Settings.inputFile {
 		Plugins.Inputs = append(Plugins.Inputs, NewFileInput(options))
 	}
