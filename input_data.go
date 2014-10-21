@@ -104,11 +104,14 @@ Accept-Language: zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4
             api_method = "GET"
         }
 
-        raw_q := fmt.Sprintf(r, api_method, s[2])
 
+        var raw_q string
         if api_method=="POST"{
            raw_body := fmt.Sprintf(r_body, data.Encode())
+            raw_q = fmt.Sprintf(r, api_method, s[2])
            raw_q = raw_q + raw_body
+        }else {
+            raw_q = fmt.Sprintf(r, api_method, s[2]+"?"+data.Encode())
         }
 
         r_b := []byte(raw_q)
