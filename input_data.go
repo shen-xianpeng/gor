@@ -8,6 +8,7 @@ import (
     "fmt"
     "encoding/json"
     "strconv"
+    "net/url"
 )
 
 
@@ -82,13 +83,16 @@ Accept-Language: zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4
             return
         }
         api_method := ""
+        data := url.Values{}
         req, ok := reqData.(map[string]interface{})
         if ok {
             for k,v := range req {
                 switch v.(type) {
                 case string:
+                    post_value, _ := v.(string)
+                    data.Set(k, v.(string))
                     if (k=="api_method"){
-                        api_method, ok = v.(string)
+                        api_method = post_value
                     }
                     fmt.Println(k, v)
                 default:
@@ -103,7 +107,7 @@ Accept-Language: zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4
         raw_q := fmt.Sprintf(r, api_method, s[2])
 
         if api_method=="POST"{
-           raw_body := fmt.Sprintf(r_body, "a=1")
+           raw_body := fmt.Sprintf(r_body, data.Encode())
            raw_q = raw_q + raw_body
         }
 
