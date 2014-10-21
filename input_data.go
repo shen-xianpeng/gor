@@ -55,7 +55,7 @@ func (i *DataInput) emit() {
     scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
-       var r =`GET %s HTTP/1.1
+       var r =`%s %s HTTP/1.1
 Host: 104.200.24.12
 Connection: keep-alive
 Accept: image/webp,*/*;q=0.8
@@ -64,11 +64,10 @@ Accept-Encoding: gzip,deflate,sdch
 Accept-Language: zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4
 
 `
+        r_body := `%s`
 
 		lineStr = scanner.Text()
         s := strings.Split(lineStr, "|||")
-        raw_q := fmt.Sprintf(r, s[2])
-        r_b := []byte(raw_q)
         Timestamp, err := strconv.ParseInt(s[0], 10, 64)
         jsonData := s[8]
         fmt.Printf(jsonData)
@@ -82,17 +81,33 @@ Accept-Language: zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4
             fmt.Println("error in translating,", err.Error())
             return
         }
+        api_method := ""
         req, ok := reqData.(map[string]interface{})
         if ok {
             for k,v := range req {
                 switch v.(type) {
                 case string:
+                    if (k=="api_method"){
+                        api_method, ok = v.(string)
+                    }
                     fmt.Println(k, v)
                 default:
                     fmt.Println("")
                 }
             }
         }
+        if api_method=="" {
+            api_method = "GET"
+        }
+
+        raw_q := fmt.Sprintf(r, api_method, s[2])
+
+        if api_method=="POST"{
+           raw_body := fmt.Sprintf(r_body, "a=1")
+           raw_q = raw_q + raw_body
+        }
+
+        r_b := []byte(raw_q)
 		lastTime = Timestamp
         raw := new(RawRequest)
         raw.Request = r_b
