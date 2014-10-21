@@ -1,6 +1,7 @@
 package main
 
 import (
+    "sort"
 	"os"
 	"time"
 	"bufio"
@@ -9,6 +10,8 @@ import (
     "encoding/json"
     "strconv"
     "net/url"
+    "io"
+    "crypto/md5"
 )
 
 
@@ -84,15 +87,19 @@ Accept-Language: zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4
         }
         api_method := ""
         data := url.Values{}
+        var keys []string
+        keys = append(keys, "private_key")
         req, ok := reqData.(map[string]interface{})
         if ok {
             for k,v := range req {
                 switch v.(type) {
                 case string:
                     post_value, _ := v.(string)
-                    data.Set(k, v.(string))
                     if (k=="api_method"){
                         api_method = post_value
+                    }else{
+                        keys = append(keys, k)
+                        data.Set(k, v.(string))
                     }
                     fmt.Println(k, v)
                 default:
@@ -104,7 +111,34 @@ Accept-Language: zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4
             api_method = "GET"
         }
 
+        app_sign := ""
+        sort.Strings(keys)
+        param := ""
 
+        for _, k := range keys {
+            fmt.Printf("%s----\n",k)
+            if k!="private_key"{
+                param = k+"="+data.Get(k)
+            }else{
+                param = k+"="+"secret_key_there"
+            }
+            if app_sign==""{
+                app_sign = param
+            }else{
+                app_sign = app_sign+"&"+param
+            }
+        }
+ 
+        fmt.Printf("\n")
+        fmt.Printf(app_sign)
+
+        fmt.Printf("\n")
+        md5_sign := md5.New()
+        io.WriteString(md5_sign, app_sign)
+        sign := fmt.Sprintf("%x\n",md5_sign.Sum(nil))
+        fmt.Printf("%s\n", sign)
+        fmt.Printf("11111111111111111-------")
+        data.Set("sign", sign)
         var raw_q string
         if api_method=="POST"{
            raw_body := fmt.Sprintf(r_body, data.Encode())
