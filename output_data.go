@@ -105,7 +105,7 @@ Accept-Language: zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4
             if k!="private_key"{
                 param = k+"="+data.Get(k)
             }else{
-                param = k+"="+"secret_key_there"
+                param = k+"="+SECRET_KEY
             }
             if app_sign==""{
                 app_sign = param
