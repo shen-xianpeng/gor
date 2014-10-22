@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"time"
+    "fmt"
 )
 
 type FileInput struct {
@@ -56,11 +57,14 @@ func (i *FileInput) emit() {
 			return
 		}
 
+        fmt.Printf("%d --------------------000\n", lastTime)
 		if lastTime != 0 {
+        fmt.Printf("%d --------------------000\n", time.Duration(raw.Timestamp - lastTime))
 			time.Sleep(time.Duration(raw.Timestamp - lastTime))
 		}
 		lastTime = raw.Timestamp
 
+        fmt.Printf("%d --------------------111\n", raw.Timestamp)
 		i.data <- raw.Request
 	}
 }
